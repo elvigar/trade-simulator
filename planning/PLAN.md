@@ -1,7 +1,5 @@
 # FinAlly — AI Trading Workstation
 
-## Project Specification
-
 ## 1. Vision
 
 FinAlly (Finance Ally) is a visually stunning AI-powered trading workstation that streams live market data, lets users trade a simulated portfolio, and integrates an LLM chat assistant that can analyze positions and execute trades on the user's behalf. It looks and feels like a modern Bloomberg terminal with an AI copilot.
@@ -101,7 +99,6 @@ finally/
 ├── db/                       # Volume mount target (SQLite file lives here at runtime)
 │   └── .gitkeep              # Directory exists in repo; finally.db is gitignored
 ├── Dockerfile                # Multi-stage build (Node → Python)
-├── docker-compose.yml        # Optional convenience wrapper
 ├── .env                      # Environment variables (gitignored, .env.example committed)
 └── .gitignore
 ```
@@ -122,7 +119,7 @@ finally/
 
 ```bash
 # Required: OpenRouter API key for LLM chat functionality
-OPENROUTER_API_KEY=your-openrouter-api-key-here
+OPENAI_API_KEY=your-openrouter-api-key-here
 
 # Optional: Massive (Polygon.io) API key for real market data
 # If not set, the built-in market simulator is used (recommended for most users)
@@ -283,7 +280,7 @@ All tables include a `user_id` column defaulting to `"default"`. This is hardcod
 
 When writing code to make calls to LLMs, use cerebras-inference skill to use LiteLLM via OpenRouter to the `openrouter/openai/gpt-oss-120b` model with Cerebras as the inference provider. Structured Outputs should be used to interpret the results.
 
-There is an OPENROUTER_API_KEY in the .env file in the project root.
+There is an OPENAI_API_KEY in the .env file in the project root.
 
 ### How It Works
 
@@ -416,10 +413,6 @@ The `db/` directory in the project root maps to `/app/db` in the container. The 
 **`scripts/start_windows.ps1`** / **`scripts/stop_windows.ps1`**: PowerShell equivalents for Windows.
 
 All scripts should be idempotent — safe to run multiple times.
-
-### Optional Cloud Deployment
-
-The container is designed to deploy to AWS App Runner, Render, or any container platform. A Terraform configuration for App Runner may be provided in a `deploy/` directory as a stretch goal, but is not part of the core build.
 
 ---
 
