@@ -49,15 +49,25 @@ def get_llm_response(messages: list[dict[str, str]], user_message: str) -> LLMCh
     if not api_key:
         raise LLMUnavailableError("OPENAI_API_KEY is not set and LLM_MOCK is not true")
 
-    response = completion(
-        model=MODEL,
-        messages=messages,
-        response_format=LLMChatResponse,
-        reasoning_effort="low",
-        extra_body=EXTRA_BODY,
-        api_key=api_key,
-    )
-    content = response.choices[0].message.content
+    try:
+        response = completion(
+            model=MODEL,
+            messages=messages,
+            response_format=LLMChatResponse,
+            reasoning_effort="low",
+            extra_body=EXTRA_BODY,
+            api_key=api_key,
+        )
+    except Exception as exc:
+        raise LLMUnavailableError(f"LLM request failed: {type(exc).__name__}") from exc
+
+    try:
+        content = response.choices[0].message.content
+    except (AttributeError, IndexError, TypeError) as exc:
+        raise LLMResponseError("LLM response did not include message content") from exc
+    if not isinstance(content, str):
+        raise LLMResponseError("LLM response content was not text")
+
     try:
         return LLMChatResponse.model_validate_json(content)
     except ValidationError as exc:

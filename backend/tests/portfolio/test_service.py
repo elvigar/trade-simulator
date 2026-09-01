@@ -83,6 +83,16 @@ def test_sell_more_than_held_raises_insufficient_shares(conn, db_path):
     assert exc_info.value.error_code == "insufficient_shares"
 
 
+def test_sell_fraction_above_position_is_rejected(conn, db_path):
+    execute_trade(conn, "AAPL", "buy", 1)
+    with pytest.raises(DomainError) as exc_info:
+        execute_trade(conn, "AAPL", "sell", 1.000001)
+    assert exc_info.value.error_code == "insufficient_shares"
+
+    position = db.get_position(conn, "AAPL")
+    assert position["quantity"] == pytest.approx(1.0)
+
+
 def test_invalid_side_raises_invalid_request(conn, db_path):
     with pytest.raises(DomainError) as exc_info:
         execute_trade(conn, "AAPL", "hold", 1)

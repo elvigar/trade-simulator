@@ -22,7 +22,7 @@ cp .env.example .env   # fill in OPENAI_API_KEY
 scripts/start.sh       # builds the image (first run) and starts the container
 ```
 
-Open the URL it prints (defaults to `http://localhost:8000`; see the `PORT` variable in
+Open the URL it prints (defaults to `http://localhost:8001`; see the `PORT` variable in
 `scripts/start.sh` if that port is already in use on your machine). Stop it with `scripts/stop.sh`
 — your portfolio, watchlist, and chat history persist in `db/finally.db` across restarts.
 

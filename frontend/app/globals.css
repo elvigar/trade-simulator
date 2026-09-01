@@ -11,7 +11,17 @@
 }
 
 body {
-  background-color: #0d1117;
+  background:
+    linear-gradient(180deg, rgba(32, 157, 215, 0.08), transparent 280px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    #0d1117;
+  background-size: auto, 48px 48px, 48px 48px, auto;
+}
+
+::selection {
+  background: rgba(236, 173, 10, 0.28);
+  color: #ffffff;
 }
 
 ::-webkit-scrollbar {

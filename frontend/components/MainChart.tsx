@@ -5,7 +5,17 @@ import PanelHeader from './PanelHeader'
 import type { PricePoint } from '@/hooks/usePriceStream'
 import { computeSessionChangePercent } from '@/lib/portfolio'
 import type { PriceUpdate } from '@/lib/types'
-import { formatClockTime, formatSignedPercent } from '@/lib/format'
+import { formatClockTime, formatCurrency, formatSignedPercent } from '@/lib/format'
+
+function Stat({ label, value, tone = 'neutral' }: { label: string; value: string; tone?: 'neutral' | 'up' | 'down' }) {
+  const toneClass = tone === 'up' ? 'text-up' : tone === 'down' ? 'text-down' : 'text-ink'
+  return (
+    <div className="border-l border-line/70 pl-3 first:border-l-0 first:pl-0">
+      <div className="text-[10px] uppercase tracking-widest text-ink-faint">{label}</div>
+      <div className={`font-mono tabular text-xs font-semibold ${toneClass}`}>{value}</div>
+    </div>
+  )
+}
 
 export default function MainChart({
   ticker,
@@ -19,9 +29,14 @@ export default function MainChart({
   const sessionChangePercent = computeSessionChangePercent(history, undefined)
   const changeColor = sessionChangePercent > 0 ? 'text-up' : sessionChangePercent < 0 ? 'text-down' : 'text-ink-muted'
   const lineColor = sessionChangePercent >= 0 ? '#2fbf71' : '#ef4a5f'
+  const latestPrice = price?.price
+  const tickChange = price?.change ?? 0
+  const tickTone = tickChange > 0 ? 'up' : tickChange < 0 ? 'down' : 'neutral'
+  const sessionHigh = history.length ? Math.max(...history.map((point) => point.price)) : latestPrice
+  const sessionLow = history.length ? Math.min(...history.map((point) => point.price)) : latestPrice
 
   return (
-    <section className="flex h-full flex-col bg-base-panel border border-line rounded-sm p-2">
+    <section className="flex h-full flex-col border border-line bg-base-panel/95 p-2 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
       <PanelHeader
         title={ticker ? `${ticker} — Price` : 'Select a ticker'}
         accent="blue"
@@ -36,6 +51,16 @@ export default function MainChart({
           ) : null
         }
       />
+
+      {ticker && (
+        <div className="mb-2 grid grid-cols-5 gap-0 rounded-sm border border-line bg-base/75 px-3 py-2">
+          <Stat label="Last" value={latestPrice ? formatCurrency(latestPrice) : '--'} />
+          <Stat label="Tick" value={price ? formatSignedPercent(price.change_percent) : '--'} tone={tickTone} />
+          <Stat label="Session" value={formatSignedPercent(sessionChangePercent)} tone={sessionChangePercent > 0 ? 'up' : sessionChangePercent < 0 ? 'down' : 'neutral'} />
+          <Stat label="Range" value={sessionHigh && sessionLow ? `${sessionLow.toFixed(2)}-${sessionHigh.toFixed(2)}` : '--'} />
+          <Stat label="Samples" value={String(history.length)} />
+        </div>
+      )}
 
       <div className="flex-1 min-h-[220px]">
         {!ticker ? (

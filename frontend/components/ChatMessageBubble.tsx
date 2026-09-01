@@ -11,11 +11,11 @@ function ActionResultBadge({ result }: { result: ActionResult }) {
 
   return (
     <div
-      className={`flex items-center gap-1.5 rounded-sm border px-2 py-1 text-xs font-mono ${
+      className={`flex items-center gap-1.5 rounded-sm border px-2 py-1 text-xs font-mono shadow-[0_4px_14px_rgba(0,0,0,0.12)] ${
         ok ? 'border-up/40 bg-up/10 text-up' : 'border-down/40 bg-down/10 text-down'
       }`}
     >
-      <span>{ok ? '✓' : '✕'}</span>
+      <span>{ok ? 'OK' : 'ERR'}</span>
       <span className="capitalize">{label}</span>
       {!ok && result.error_code && <span className="text-ink-faint">({result.error_code})</span>}
     </div>
@@ -27,12 +27,12 @@ export default function ChatMessageBubble({ message }: { message: ChatMessage })
   return (
     <div className={`flex flex-col gap-1 ${isUser ? 'items-end' : 'items-start'}`}>
       <div
-        className={`max-w-[92%] rounded-sm px-2.5 py-1.5 text-sm ${
+        className={`max-w-[92%] rounded-sm border px-2.5 py-1.5 text-sm shadow-[0_6px_18px_rgba(0,0,0,0.14)] ${
           isUser
-            ? 'bg-brand-blue/20 text-ink'
+            ? 'border-brand-blue/25 bg-brand-blue/20 text-ink'
             : message.isError
-              ? 'bg-down/10 text-down'
-              : 'bg-base-raised text-ink'
+              ? 'border-down/30 bg-down/10 text-down'
+              : 'border-line bg-base-raised text-ink'
         }`}
       >
         {message.pending ? (

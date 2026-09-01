@@ -38,7 +38,11 @@ export default function TradingTerminal() {
   )
 
   const totalValue = portfolio ? computeTotalValue(portfolio.cash_balance, positionMetrics) : 0
+  const investedValue = positionMetrics.reduce((sum, p) => sum + p.marketValue, 0)
   const effectiveSelected = selectedTicker ?? watchlist[0]?.ticker ?? null
+  const selectedPosition = effectiveSelected
+    ? positionMetrics.find((position) => position.ticker === effectiveSelected)
+    : undefined
 
   function handleTraded() {
     refreshPortfolio()
@@ -54,9 +58,15 @@ export default function TradingTerminal() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Header totalValue={totalValue} cashBalance={portfolio?.cash_balance ?? 0} status={status} />
+      <Header
+        totalValue={totalValue}
+        cashBalance={portfolio?.cash_balance ?? 0}
+        investedValue={investedValue}
+        totalUnrealizedPnl={portfolio?.total_unrealized_pnl ?? 0}
+        status={status}
+      />
 
-      <div className="flex flex-1 gap-2 overflow-hidden p-2">
+      <div className="flex flex-1 gap-2 overflow-hidden p-2.5">
         <div className="w-72 shrink-0">
           <WatchlistPanel
             watchlist={watchlist}
@@ -87,7 +97,13 @@ export default function TradingTerminal() {
             <PositionsTable positions={positionMetrics} />
           </div>
 
-          <TradeBar defaultTicker={effectiveSelected} onTraded={handleTraded} />
+          <TradeBar
+            defaultTicker={effectiveSelected}
+            currentPrice={effectiveSelected ? prices[effectiveSelected]?.price : undefined}
+            cashBalance={portfolio?.cash_balance ?? 0}
+            heldQuantity={selectedPosition?.quantity ?? 0}
+            onTraded={handleTraded}
+          />
         </div>
 
         <div className={chatOpen ? 'w-80 shrink-0' : 'shrink-0'}>

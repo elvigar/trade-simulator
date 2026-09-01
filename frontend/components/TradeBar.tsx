@@ -4,12 +4,19 @@ import { useState } from 'react'
 import PanelHeader from './PanelHeader'
 import { ApiError, api } from '@/lib/api'
 import type { TradeSide } from '@/lib/types'
+import { formatCurrency, formatQuantity } from '@/lib/format'
 
 export default function TradeBar({
   defaultTicker,
+  currentPrice,
+  cashBalance,
+  heldQuantity,
   onTraded,
 }: {
   defaultTicker: string | null
+  currentPrice?: number
+  cashBalance: number
+  heldQuantity: number
   onTraded: () => void
 }) {
   const [ticker, setTicker] = useState('')
@@ -18,14 +25,20 @@ export default function TradeBar({
   const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null)
 
   const effectiveTicker = (ticker || defaultTicker || '').trim().toUpperCase()
+  const numericQuantity = Number(quantity)
+  const validQuantity = Number.isFinite(numericQuantity) && numericQuantity > 0
+  const estimatedNotional = validQuantity && currentPrice ? numericQuantity * currentPrice : null
+  const cashAfterBuy = estimatedNotional !== null ? cashBalance - estimatedNotional : null
+  const cashAfterSell = estimatedNotional !== null ? cashBalance + estimatedNotional : null
+  const sharesAfterBuy = validQuantity ? heldQuantity + numericQuantity : heldQuantity
+  const sharesAfterSell = validQuantity ? heldQuantity - numericQuantity : heldQuantity
 
   async function submit(side: TradeSide) {
-    const qty = Number(quantity)
     if (!effectiveTicker) {
       setFeedback({ ok: false, text: 'Enter a ticker.' })
       return
     }
-    if (!qty || qty <= 0) {
+    if (!validQuantity) {
       setFeedback({ ok: false, text: 'Enter a quantity greater than 0.' })
       return
     }
@@ -33,8 +46,11 @@ export default function TradeBar({
     setSubmitting(side)
     setFeedback(null)
     try {
-      const { trade } = await api.trade({ ticker: effectiveTicker, side, quantity: qty })
-      setFeedback({ ok: true, text: `${side === 'buy' ? 'Bought' : 'Sold'} ${qty} ${effectiveTicker} @ ${trade.price.toFixed(2)}` })
+      const { trade } = await api.trade({ ticker: effectiveTicker, side, quantity: numericQuantity })
+      setFeedback({
+        ok: true,
+        text: `${side === 'buy' ? 'Bought' : 'Sold'} ${numericQuantity} ${effectiveTicker} @ ${trade.price.toFixed(2)}`,
+      })
       setQuantity('')
       onTraded()
     } catch (e) {
@@ -46,10 +62,21 @@ export default function TradeBar({
   }
 
   return (
-    <section className="bg-base-panel border border-line rounded-sm p-2">
-      <PanelHeader title="Trade" accent="purple" />
-      <div className="flex flex-wrap items-end gap-2">
-        <div className="flex flex-col gap-1">
+    <section className="border border-line bg-base-panel/95 p-2 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
+      <PanelHeader
+        title="Order Ticket"
+        accent="purple"
+        right={
+          effectiveTicker ? (
+            <span className="font-mono text-[11px] text-ink-faint">
+              {effectiveTicker}
+              {currentPrice ? ` @ ${currentPrice.toFixed(2)}` : ''}
+            </span>
+          ) : null
+        }
+      />
+      <div className="grid grid-cols-[auto_auto_1fr_auto_auto] items-end gap-2">
+        <div className="flex min-w-0 flex-col gap-1">
           <label htmlFor="trade-ticker" className="text-[10px] uppercase tracking-widest text-ink-faint">
             Ticker
           </label>
@@ -58,10 +85,10 @@ export default function TradeBar({
             value={ticker}
             onChange={(e) => setTicker(e.target.value)}
             placeholder={defaultTicker ?? 'AAPL'}
-            className="w-24 rounded-sm border border-line bg-base px-2 py-1 font-mono text-sm uppercase text-ink placeholder:text-ink-faint focus:border-brand-blue focus:outline-none"
+            className="w-24 rounded-sm border border-line bg-base px-2 py-1.5 font-mono text-sm uppercase text-ink placeholder:text-ink-faint focus:border-brand-blue focus:outline-none"
           />
         </div>
-        <div className="flex flex-col gap-1">
+        <div className="flex min-w-0 flex-col gap-1">
           <label htmlFor="trade-qty" className="text-[10px] uppercase tracking-widest text-ink-faint">
             Quantity
           </label>
@@ -73,8 +100,34 @@ export default function TradeBar({
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
             placeholder="10"
-            className="w-24 rounded-sm border border-line bg-base px-2 py-1 font-mono text-sm text-ink placeholder:text-ink-faint focus:border-brand-blue focus:outline-none"
+            className="w-24 rounded-sm border border-line bg-base px-2 py-1.5 font-mono text-sm text-ink placeholder:text-ink-faint focus:border-brand-blue focus:outline-none"
           />
+        </div>
+        <div className="grid min-w-[260px] grid-cols-4 gap-1 rounded-sm border border-line bg-base/80 px-2 py-1.5 text-[11px]">
+          <div>
+            <div className="uppercase tracking-widest text-ink-faint">Notional</div>
+            <div className="font-mono tabular text-ink">
+              {estimatedNotional === null ? '--' : formatCurrency(estimatedNotional)}
+            </div>
+          </div>
+          <div>
+            <div className="uppercase tracking-widest text-ink-faint">Cash Buy</div>
+            <div className={`font-mono tabular ${cashAfterBuy !== null && cashAfterBuy < 0 ? 'text-down' : 'text-ink'}`}>
+              {cashAfterBuy === null ? '--' : formatCurrency(cashAfterBuy)}
+            </div>
+          </div>
+          <div>
+            <div className="uppercase tracking-widest text-ink-faint">Cash Sell</div>
+            <div className="font-mono tabular text-ink">
+              {cashAfterSell === null ? '--' : formatCurrency(cashAfterSell)}
+            </div>
+          </div>
+          <div>
+            <div className="uppercase tracking-widest text-ink-faint">Shares</div>
+            <div className={`font-mono tabular ${sharesAfterSell < 0 ? 'text-down' : 'text-ink'}`}>
+              {formatQuantity(sharesAfterBuy)} / {formatQuantity(sharesAfterSell)}
+            </div>
+          </div>
         </div>
         <button
           type="button"
@@ -82,7 +135,10 @@ export default function TradeBar({
           disabled={submitting !== null}
           className="rounded-sm bg-up px-4 py-1.5 text-sm font-semibold text-base disabled:opacity-50"
         >
-          Buy
+          <span aria-hidden="true" className="mr-1 rounded-[1px] bg-base/25 px-1 font-mono text-[10px]">
+            B
+          </span>
+          <span>Buy</span>
         </button>
         <button
           type="button"
@@ -90,10 +146,13 @@ export default function TradeBar({
           disabled={submitting !== null}
           className="rounded-sm bg-down px-4 py-1.5 text-sm font-semibold text-base disabled:opacity-50"
         >
-          Sell
+          <span aria-hidden="true" className="mr-1 rounded-[1px] bg-base/25 px-1 font-mono text-[10px]">
+            S
+          </span>
+          <span>Sell</span>
         </button>
         {feedback && (
-          <span className={`text-xs ${feedback.ok ? 'text-up' : 'text-down'}`} role="status">
+          <span className={`min-w-0 text-xs ${feedback.ok ? 'text-up' : 'text-down'}`} role="status">
             {feedback.text}
           </span>
         )}

@@ -43,8 +43,18 @@ export default function WatchlistPanel({
   }
 
   return (
-    <section className="flex h-full flex-col bg-base-panel border border-line rounded-sm">
-      <PanelHeader title="Watchlist" accent="accent" right={<span className="text-xs text-ink-faint">{watchlist.length} tickers</span>} />
+    <section className="flex h-full flex-col border border-line bg-base-panel/95 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
+      <PanelHeader
+        title="Watchlist"
+        accent="accent"
+        right={<span className="font-mono text-[11px] text-ink-faint">{watchlist.length} symbols</span>}
+      />
+
+      <div className="grid grid-cols-[1fr_auto_auto] gap-3 border-b border-line px-3 pb-2 font-mono text-[10px] uppercase tracking-widest text-ink-faint">
+        <span>Symbol</span>
+        <span>Last</span>
+        <span>Session</span>
+      </div>
 
       <div className="flex-1 overflow-y-auto px-1">
         {watchlist.map((entry) => {
@@ -67,7 +77,7 @@ export default function WatchlistPanel({
         )}
       </div>
 
-      <form onSubmit={handleAdd} className="flex gap-1.5 border-t border-line p-2">
+      <form onSubmit={handleAdd} className="flex gap-1.5 border-t border-line bg-base/55 p-2">
         <input
           value={input}
           onChange={(e) => {
@@ -81,7 +91,7 @@ export default function WatchlistPanel({
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-sm bg-brand-blue px-2.5 py-1 text-xs font-semibold text-base disabled:opacity-50"
+          className="rounded-sm bg-brand-blue px-2.5 py-1 text-xs font-semibold text-base shadow-[0_0_18px_rgba(32,157,215,0.22)] disabled:opacity-50"
         >
           Add
         </button>

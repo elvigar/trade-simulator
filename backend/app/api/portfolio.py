@@ -7,7 +7,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
 from app import db
@@ -40,7 +40,7 @@ def post_trade_route(payload: TradeRequest) -> dict:
 
 
 @router.get("/history")
-def get_history_route() -> dict:
+def get_history_route(limit: int = Query(default=1000, ge=1, le=5000)) -> dict:
     with db.get_connection() as conn:
-        snapshots = db.list_snapshots(conn)
+        snapshots = db.list_snapshots(conn, limit=limit)
     return {"snapshots": snapshots}

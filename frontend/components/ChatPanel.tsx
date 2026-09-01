@@ -40,7 +40,7 @@ export default function ChatPanel({
         type="button"
         onClick={onToggle}
         aria-label="Open AI chat"
-        className="flex h-full w-10 flex-col items-center justify-center gap-2 border border-line bg-base-panel rounded-sm text-brand-blue hover:bg-base-raised"
+        className="flex h-full w-10 flex-col items-center justify-center gap-2 border border-line bg-base-panel/95 text-brand-blue shadow-[0_8px_24px_rgba(0,0,0,0.18)] hover:bg-base-raised"
       >
         <span className="[writing-mode:vertical-rl] text-xs uppercase tracking-widest">AI Assistant</span>
       </button>
@@ -48,19 +48,22 @@ export default function ChatPanel({
   }
 
   return (
-    <section className="flex h-full w-full flex-col border-l-2 border-l-brand-blue border border-line bg-base-alt rounded-sm">
-      <div className="flex items-center justify-between px-3 py-2 border-b border-line">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-brand-blue">AI Assistant</h2>
+    <section className="flex h-full w-full flex-col border border-line border-l-brand-blue bg-base-alt/95 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
+      <div className="flex items-center justify-between border-b border-line px-3 py-2">
+        <div>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-brand-blue">AI Assistant</h2>
+          <div className="font-mono text-[10px] uppercase tracking-widest text-ink-faint">Ready</div>
+        </div>
         <button type="button" onClick={onToggle} aria-label="Collapse AI chat" className="text-ink-faint hover:text-ink text-xs">
-          ✕
+          x
         </button>
       </div>
 
       <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-3 py-3">
         {messages.length === 0 && (
-          <p className="text-xs text-ink-faint">
-            Ask about your portfolio, request analysis, or tell it to place a trade or update your watchlist.
-          </p>
+          <div className="rounded-sm border border-line bg-base/65 p-3">
+            <p className="text-xs text-ink-faint">Portfolio analysis and order actions will appear here.</p>
+          </div>
         )}
         {messages.map((m) => (
           <ChatMessageBubble key={m.id} message={m} />

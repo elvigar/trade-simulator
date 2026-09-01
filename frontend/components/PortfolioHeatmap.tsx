@@ -54,10 +54,24 @@ export default function PortfolioHeatmap({ positions }: { positions: PositionMet
   const data: TreemapNode[] = positions
     .filter((p) => p.marketValue > 0)
     .map((p) => ({ name: p.ticker, size: p.marketValue, pnlPercent: p.unrealizedPnlPercent }))
+  const largest = positions.reduce<PositionMetrics | null>(
+    (current, position) => (!current || position.marketValue > current.marketValue ? position : current),
+    null,
+  )
 
   return (
-    <section className="flex h-full flex-col bg-base-panel border border-line rounded-sm p-2">
-      <PanelHeader title="Portfolio Heatmap" accent="purple" />
+    <section className="flex h-full flex-col border border-line bg-base-panel/95 p-2 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
+      <PanelHeader
+        title="Exposure Map"
+        accent="purple"
+        right={
+          largest ? (
+            <span className="font-mono text-[11px] text-ink-faint">
+              Top {largest.ticker} {formatCurrency(largest.marketValue)}
+            </span>
+          ) : null
+        }
+      />
       <div className="flex-1 min-h-[180px]">
         {data.length === 0 ? (
           <div className="flex h-full items-center justify-center text-sm text-ink-faint">No open positions yet.</div>

@@ -12,10 +12,17 @@ export default function PnLChart({ history }: { history: PortfolioSnapshot[] }) 
     t: new Date(s.recorded_at).getTime(),
     value: s.total_value,
   }))
+  const latest = data.at(-1)?.value
+  const change = latest !== undefined ? latest - BASELINE : 0
+  const changeColor = change > 0 ? 'text-up' : change < 0 ? 'text-down' : 'text-ink-muted'
 
   return (
-    <section className="flex h-full flex-col bg-base-panel border border-line rounded-sm p-2">
-      <PanelHeader title="Portfolio Value Over Time" accent="blue" />
+    <section className="flex h-full flex-col border border-line bg-base-panel/95 p-2 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
+      <PanelHeader
+        title="Equity Curve"
+        accent="blue"
+        right={<span className={`font-mono text-[11px] tabular ${changeColor}`}>{formatCurrency(change)}</span>}
+      />
       <div className="flex-1 min-h-[160px]">
         {data.length < 2 ? (
           <div className="flex h-full items-center justify-center text-sm text-ink-faint">

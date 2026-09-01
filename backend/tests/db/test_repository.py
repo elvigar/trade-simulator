@@ -96,6 +96,23 @@ def test_insert_snapshot_and_list_snapshots(conn):
     assert snapshots[-1]["total_value"] == 10500.0
 
 
+def test_list_snapshots_limit_returns_latest_rows_in_chronological_order(conn):
+    conn.execute("DELETE FROM portfolio_snapshots")
+    for i in range(5):
+        conn.execute(
+            """
+            INSERT INTO portfolio_snapshots (id, user_id, total_value, recorded_at)
+            VALUES (?, ?, ?, ?)
+            """,
+            (f"snapshot-{i}", DEFAULT_USER_ID, 10000.0 + i, f"2026-01-01T00:00:0{i}+00:00"),
+        )
+
+    snapshots = repo.list_snapshots(conn, limit=2)
+
+    assert [row["id"] for row in snapshots] == ["snapshot-3", "snapshot-4"]
+    assert [row["total_value"] for row in snapshots] == [10003.0, 10004.0]
+
+
 # --- watchlist ---------------------------------------------------------
 
 

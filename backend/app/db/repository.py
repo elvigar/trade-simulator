@@ -162,10 +162,33 @@ def insert_snapshot(
     }
 
 
-def list_snapshots(conn: sqlite3.Connection, user_id: str = DEFAULT_USER_ID) -> list[dict[str, Any]]:
-    """Return all portfolio snapshots for the user, oldest first (for the P&L chart)."""
+def list_snapshots(
+    conn: sqlite3.Connection, user_id: str = DEFAULT_USER_ID, limit: int | None = None
+) -> list[dict[str, Any]]:
+    """Return portfolio snapshots for the user, oldest first.
+
+    If `limit` is provided, returns the most recent `limit` snapshots while
+    preserving chronological order for charting.
+    """
+    if limit is None:
+        rows = conn.execute(
+            "SELECT * FROM portfolio_snapshots WHERE user_id = ? ORDER BY recorded_at",
+            (user_id,),
+        ).fetchall()
+        return [dict(row) for row in rows]
     rows = conn.execute(
-        "SELECT * FROM portfolio_snapshots WHERE user_id = ? ORDER BY recorded_at", (user_id,)
+        """
+        SELECT *
+        FROM (
+            SELECT *
+            FROM portfolio_snapshots
+            WHERE user_id = ?
+            ORDER BY recorded_at DESC
+            LIMIT ?
+        )
+        ORDER BY recorded_at
+        """,
+        (user_id, limit),
     ).fetchall()
     return [dict(row) for row in rows]
 

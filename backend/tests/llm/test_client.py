@@ -34,6 +34,19 @@ def test_raises_unavailable_without_key_or_mock(monkeypatch):
         get_llm_response(messages=[{"role": "user", "content": "hi"}], user_message="hi")
 
 
+def test_raises_unavailable_on_provider_exception(monkeypatch):
+    monkeypatch.delenv("LLM_MOCK", raising=False)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+
+    def _raise_provider_error(**kwargs):
+        raise RuntimeError("provider down")
+
+    monkeypatch.setattr(client, "completion", _raise_provider_error)
+
+    with pytest.raises(LLMUnavailableError):
+        get_llm_response(messages=[{"role": "user", "content": "hi"}], user_message="hi")
+
+
 def test_parses_valid_structured_response(monkeypatch):
     monkeypatch.delenv("LLM_MOCK", raising=False)
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")
@@ -61,6 +74,15 @@ def test_raises_llm_response_error_on_missing_required_field(monkeypatch):
     monkeypatch.delenv("LLM_MOCK", raising=False)
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")
     monkeypatch.setattr(client, "completion", _fake_completion('{"trades": []}'))
+
+    with pytest.raises(LLMResponseError):
+        get_llm_response(messages=[{"role": "user", "content": "hi"}], user_message="hi")
+
+
+def test_raises_llm_response_error_on_missing_content(monkeypatch):
+    monkeypatch.delenv("LLM_MOCK", raising=False)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setattr(client, "completion", lambda **kwargs: SimpleNamespace(choices=[]))
 
     with pytest.raises(LLMResponseError):
         get_llm_response(messages=[{"role": "user", "content": "hi"}], user_message="hi")

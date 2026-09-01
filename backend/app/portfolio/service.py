@@ -20,7 +20,6 @@ from app.validation import normalize_ticker
 
 TWO_PLACES = Decimal("0.01")
 ZERO = Decimal("0")
-SHARE_EPSILON = Decimal("0.000001")
 
 
 def _round_money(value: Decimal) -> float:
@@ -91,7 +90,7 @@ def execute_trade(
                 new_qty = current_qty + qty
                 new_avg_cost = ((current_qty * current_avg_cost) + trade_value) / new_qty
             else:
-                if qty > current_qty + SHARE_EPSILON:
+                if qty > current_qty:
                     raise DomainError(
                         "insufficient_shares",
                         f"insufficient shares: trying to sell {qty}, hold {current_qty}",

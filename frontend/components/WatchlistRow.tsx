@@ -38,8 +38,10 @@ export default function WatchlistRow({
       onClick={onSelect}
       onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelect()}
       data-testid={`watchlist-row-${ticker}`}
-      className={`grid grid-cols-[1fr_auto_auto_auto_auto] items-center gap-3 px-2 py-1.5 cursor-pointer border-l-2 transition-colors ${
-        selected ? 'border-l-accent bg-base-raised' : 'border-l-transparent hover:bg-base-raised/60'
+      className={`grid grid-cols-[1fr_auto_auto_auto_auto] items-center gap-3 px-2 py-2 cursor-pointer border-l-2 transition-colors ${
+        selected
+          ? 'border-l-accent bg-accent/10 shadow-[inset_0_0_0_1px_rgba(236,173,10,0.12)]'
+          : 'border-l-transparent hover:bg-base-raised/70'
       }`}
     >
       <div className="flex flex-col">

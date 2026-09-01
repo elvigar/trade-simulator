@@ -39,6 +39,7 @@ export interface Position {
 
 export interface Portfolio {
   cash_balance: number
+  total_unrealized_pnl: number
   total_value: number
   positions: Position[]
 }
