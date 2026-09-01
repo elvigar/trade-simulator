@@ -50,6 +50,28 @@ def update_cash_balance(
     )
 
 
+def get_display_currency(conn: sqlite3.Connection, user_id: str = DEFAULT_USER_ID) -> str:
+    """Return the user's preferred display currency (e.g. "USD", "EUR").
+
+    Raises LookupError if no users_profile row exists for user_id.
+    """
+    row = conn.execute(
+        "SELECT display_currency FROM users_profile WHERE id = ?", (user_id,)
+    ).fetchone()
+    if row is None:
+        raise LookupError(f"no users_profile row for user_id={user_id!r}")
+    return row["display_currency"]
+
+
+def set_display_currency(
+    conn: sqlite3.Connection, currency: str, user_id: str = DEFAULT_USER_ID
+) -> None:
+    """Set the user's preferred display currency."""
+    conn.execute(
+        "UPDATE users_profile SET display_currency = ? WHERE id = ?", (currency, user_id)
+    )
+
+
 # --- positions -----------------------------------------------------------
 
 

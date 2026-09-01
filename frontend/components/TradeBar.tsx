@@ -4,19 +4,23 @@ import { useState } from 'react'
 import PanelHeader from './PanelHeader'
 import { ApiError, api } from '@/lib/api'
 import type { TradeSide } from '@/lib/types'
-import { formatCurrency, formatQuantity } from '@/lib/format'
+import { formatDualCurrency, formatQuantity } from '@/lib/format'
 
 export default function TradeBar({
   defaultTicker,
   currentPrice,
   cashBalance,
   heldQuantity,
+  displayCurrency = 'USD',
+  rates = null,
   onTraded,
 }: {
   defaultTicker: string | null
   currentPrice?: number
   cashBalance: number
   heldQuantity: number
+  displayCurrency?: string
+  rates?: Record<string, number> | null
   onTraded: () => void
 }) {
   const [ticker, setTicker] = useState('')
@@ -70,7 +74,7 @@ export default function TradeBar({
           effectiveTicker ? (
             <span className="font-mono text-[11px] text-ink-faint">
               {effectiveTicker}
-              {currentPrice ? ` @ ${currentPrice.toFixed(2)}` : ''}
+              {currentPrice ? ` @ ${formatDualCurrency(currentPrice, displayCurrency, rates)}` : ''}
             </span>
           ) : null
         }
@@ -103,23 +107,23 @@ export default function TradeBar({
             className="w-24 rounded-sm border border-line bg-base px-2 py-1.5 font-mono text-sm text-ink placeholder:text-ink-faint focus:border-brand-blue focus:outline-none"
           />
         </div>
-        <div className="grid min-w-[260px] grid-cols-4 gap-1 rounded-sm border border-line bg-base/80 px-2 py-1.5 text-[11px]">
+        <div className="grid min-w-[340px] grid-cols-4 gap-1 rounded-sm border border-line bg-base/80 px-2 py-1.5 text-[11px]">
           <div>
             <div className="uppercase tracking-widest text-ink-faint">Notional</div>
             <div className="font-mono tabular text-ink">
-              {estimatedNotional === null ? '--' : formatCurrency(estimatedNotional)}
+              {estimatedNotional === null ? '--' : formatDualCurrency(estimatedNotional, displayCurrency, rates)}
             </div>
           </div>
           <div>
             <div className="uppercase tracking-widest text-ink-faint">Cash Buy</div>
             <div className={`font-mono tabular ${cashAfterBuy !== null && cashAfterBuy < 0 ? 'text-down' : 'text-ink'}`}>
-              {cashAfterBuy === null ? '--' : formatCurrency(cashAfterBuy)}
+              {cashAfterBuy === null ? '--' : formatDualCurrency(cashAfterBuy, displayCurrency, rates)}
             </div>
           </div>
           <div>
             <div className="uppercase tracking-widest text-ink-faint">Cash Sell</div>
             <div className="font-mono tabular text-ink">
-              {cashAfterSell === null ? '--' : formatCurrency(cashAfterSell)}
+              {cashAfterSell === null ? '--' : formatDualCurrency(cashAfterSell, displayCurrency, rates)}
             </div>
           </div>
           <div>

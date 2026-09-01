@@ -1,6 +1,8 @@
 import ConnectionDot from './ConnectionDot'
+import CurrencySelect from './CurrencySelect'
 import type { ConnectionStatus } from '@/hooks/usePriceStream'
-import { formatCurrency, formatSignedCurrency, formatSignedPercent } from '@/lib/format'
+import type { CurrencyMeta } from '@/lib/types'
+import { formatDualCurrency, formatSignedDualCurrency, formatSignedPercent } from '@/lib/format'
 
 function Metric({
   label,
@@ -33,12 +35,20 @@ export default function Header({
   investedValue,
   totalUnrealizedPnl,
   status,
+  displayCurrency = 'USD',
+  currencies = [{ code: 'USD', name: 'US Dollar' }],
+  rates = null,
+  onCurrencyChange = () => {},
 }: {
   totalValue: number
   cashBalance: number
   investedValue: number
   totalUnrealizedPnl: number
   status: ConnectionStatus
+  displayCurrency?: string
+  currencies?: CurrencyMeta[]
+  rates?: Record<string, number> | null
+  onCurrencyChange?: (code: string) => void
 }) {
   const pnlTone = totalUnrealizedPnl > 0 ? 'up' : totalUnrealizedPnl < 0 ? 'down' : 'neutral'
   const cashAllocation = totalValue > 0 ? (cashBalance / totalValue) * 100 : 0
@@ -62,16 +72,23 @@ export default function Header({
 
       <div className="flex min-w-0 items-center gap-4">
         <div className="hidden items-center gap-0 rounded-sm border border-line bg-base/70 px-3 py-1.5 lg:flex">
-          <Metric label="Total Value" value={formatCurrency(totalValue)} tone="accent" />
-          <Metric label="Unrealized" value={formatSignedCurrency(totalUnrealizedPnl)} tone={pnlTone} />
-          <Metric label="Invested" value={formatCurrency(investedValue)} tone="neutral" />
-          <Metric label="Cash" value={formatCurrency(cashBalance)} tone="blue" />
+          <Metric label="Total Value" value={formatDualCurrency(totalValue, displayCurrency, rates)} tone="accent" />
+          <Metric
+            label="Unrealized"
+            value={formatSignedDualCurrency(totalUnrealizedPnl, displayCurrency, rates)}
+            tone={pnlTone}
+          />
+          <Metric label="Invested" value={formatDualCurrency(investedValue, displayCurrency, rates)} tone="neutral" />
+          <Metric label="Cash" value={formatDualCurrency(cashBalance, displayCurrency, rates)} tone="blue" />
           <Metric label="Cash %" value={formatSignedPercent(cashAllocation).replace('+', '')} tone="neutral" />
         </div>
         <div className="text-right lg:hidden">
           <div className="text-[10px] uppercase tracking-widest text-ink-faint">Total Value</div>
-          <div className="font-mono tabular text-base font-semibold text-accent">{formatCurrency(totalValue)}</div>
+          <div className="font-mono tabular text-base font-semibold text-accent">
+            {formatDualCurrency(totalValue, displayCurrency, rates)}
+          </div>
         </div>
+        <CurrencySelect currencies={currencies} value={displayCurrency} onChange={onCurrencyChange} />
         <ConnectionDot status={status} />
       </div>
     </header>

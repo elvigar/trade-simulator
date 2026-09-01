@@ -102,3 +102,52 @@ def test_init_creates_parent_directory_if_missing(tmp_path):
     with get_connection(path) as conn:
         row = conn.execute("SELECT 1 FROM users_profile").fetchone()
     assert row is not None
+
+
+def test_init_fresh_db_has_display_currency_defaulted_to_usd(tmp_path):
+    path = str(tmp_path / "finally.db")
+    init_db(path)
+    with get_connection(path) as conn:
+        row = conn.execute(
+            "SELECT display_currency FROM users_profile WHERE id = ?", (DEFAULT_USER_ID,)
+        ).fetchone()
+    assert row["display_currency"] == "USD"
+
+
+def test_init_migrates_old_shape_users_profile_and_backfills_usd(tmp_path):
+    path = str(tmp_path / "finally.db")
+    with get_connection(path) as conn:
+        conn.execute(
+            """
+            CREATE TABLE users_profile (
+                id TEXT PRIMARY KEY DEFAULT 'default',
+                cash_balance REAL NOT NULL DEFAULT 10000.0,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        conn.execute(
+            "INSERT INTO users_profile (id, cash_balance, created_at) VALUES (?, ?, ?)",
+            (DEFAULT_USER_ID, DEFAULT_CASH_BALANCE, "2026-01-01T00:00:00+00:00"),
+        )
+        conn.commit()
+
+    init_db(path)
+
+    with get_connection(path) as conn:
+        row = conn.execute(
+            "SELECT display_currency FROM users_profile WHERE id = ?", (DEFAULT_USER_ID,)
+        ).fetchone()
+    assert row["display_currency"] == "USD"
+
+
+def test_init_column_migration_is_idempotent(tmp_path):
+    path = str(tmp_path / "finally.db")
+    init_db(path)
+    init_db(path)
+    init_db(path)
+    with get_connection(path) as conn:
+        row = conn.execute(
+            "SELECT display_currency FROM users_profile WHERE id = ?", (DEFAULT_USER_ID,)
+        ).fetchone()
+    assert row["display_currency"] == "USD"

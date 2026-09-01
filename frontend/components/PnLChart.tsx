@@ -3,11 +3,19 @@
 import { Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import PanelHeader from './PanelHeader'
 import type { PortfolioSnapshot } from '@/lib/types'
-import { formatCurrency } from '@/lib/format'
+import { formatCurrency, formatDualCurrency } from '@/lib/format'
 
 const BASELINE = 10000
 
-export default function PnLChart({ history }: { history: PortfolioSnapshot[] }) {
+export default function PnLChart({
+  history,
+  displayCurrency = 'USD',
+  rates = null,
+}: {
+  history: PortfolioSnapshot[]
+  displayCurrency?: string
+  rates?: Record<string, number> | null
+}) {
   const data = history.map((s) => ({
     t: new Date(s.recorded_at).getTime(),
     value: s.total_value,
@@ -17,11 +25,18 @@ export default function PnLChart({ history }: { history: PortfolioSnapshot[] }) 
   const changeColor = change > 0 ? 'text-up' : change < 0 ? 'text-down' : 'text-ink-muted'
 
   return (
-    <section className="flex h-full flex-col border border-line bg-base-panel/95 p-2 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
+    <section
+      data-testid="pnl-chart"
+      className="flex h-full flex-col border border-line bg-base-panel/95 p-2 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+    >
       <PanelHeader
         title="Equity Curve"
         accent="blue"
-        right={<span className={`font-mono text-[11px] tabular ${changeColor}`}>{formatCurrency(change)}</span>}
+        right={
+          <span className={`font-mono text-[11px] tabular ${changeColor}`}>
+            {formatDualCurrency(change, displayCurrency, rates)}
+          </span>
+        }
       />
       <div className="flex-1 min-h-[160px]">
         {data.length < 2 ? (

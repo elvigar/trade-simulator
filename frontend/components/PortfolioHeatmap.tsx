@@ -3,7 +3,7 @@
 import { ResponsiveContainer, Tooltip, Treemap } from 'recharts'
 import PanelHeader from './PanelHeader'
 import type { PositionMetrics } from '@/lib/portfolio'
-import { formatCurrency, formatSignedPercent } from '@/lib/format'
+import { formatCurrency, formatDualCurrency, formatSignedPercent } from '@/lib/format'
 
 interface TreemapNode {
   name: string
@@ -50,7 +50,15 @@ function CellContent(props: {
   )
 }
 
-export default function PortfolioHeatmap({ positions }: { positions: PositionMetrics[] }) {
+export default function PortfolioHeatmap({
+  positions,
+  displayCurrency = 'USD',
+  rates = null,
+}: {
+  positions: PositionMetrics[]
+  displayCurrency?: string
+  rates?: Record<string, number> | null
+}) {
   const data: TreemapNode[] = positions
     .filter((p) => p.marketValue > 0)
     .map((p) => ({ name: p.ticker, size: p.marketValue, pnlPercent: p.unrealizedPnlPercent }))
@@ -67,7 +75,7 @@ export default function PortfolioHeatmap({ positions }: { positions: PositionMet
         right={
           largest ? (
             <span className="font-mono text-[11px] text-ink-faint">
-              Top {largest.ticker} {formatCurrency(largest.marketValue)}
+              Top {largest.ticker} {formatDualCurrency(largest.marketValue, displayCurrency, rates)}
             </span>
           ) : null
         }

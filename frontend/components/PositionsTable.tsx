@@ -1,8 +1,16 @@
 import PanelHeader from './PanelHeader'
 import type { PositionMetrics } from '@/lib/portfolio'
-import { formatCurrency, formatQuantity, formatSignedCurrency, formatSignedPercent } from '@/lib/format'
+import { formatDualCurrency, formatQuantity, formatSignedDualCurrency, formatSignedPercent } from '@/lib/format'
 
-export default function PositionsTable({ positions }: { positions: PositionMetrics[] }) {
+export default function PositionsTable({
+  positions,
+  displayCurrency = 'USD',
+  rates = null,
+}: {
+  positions: PositionMetrics[]
+  displayCurrency?: string
+  rates?: Record<string, number> | null
+}) {
   const marketValue = positions.reduce((sum, position) => sum + position.marketValue, 0)
   const unrealizedPnl = positions.reduce((sum, position) => sum + position.unrealizedPnl, 0)
   const pnlColor = unrealizedPnl > 0 ? 'text-up' : unrealizedPnl < 0 ? 'text-down' : 'text-ink-muted'
@@ -15,8 +23,8 @@ export default function PositionsTable({ positions }: { positions: PositionMetri
         right={
           positions.length ? (
             <div className="flex gap-3 font-mono text-[11px] tabular">
-              <span className="text-ink-faint">{formatCurrency(marketValue)}</span>
-              <span className={pnlColor}>{formatSignedCurrency(unrealizedPnl)}</span>
+              <span className="text-ink-faint">{formatDualCurrency(marketValue, displayCurrency, rates)}</span>
+              <span className={pnlColor}>{formatSignedDualCurrency(unrealizedPnl, displayCurrency, rates)}</span>
             </div>
           ) : null
         }
@@ -44,10 +52,14 @@ export default function PositionsTable({ positions }: { positions: PositionMetri
                   <tr key={p.ticker} className="border-t border-line/60">
                     <td className="py-1.5 font-sans font-semibold text-ink">{p.ticker}</td>
                     <td className="py-1.5 text-right">{formatQuantity(p.quantity)}</td>
-                    <td className="py-1.5 text-right text-ink-muted">{formatCurrency(p.avgCost)}</td>
-                    <td className="py-1.5 text-right">{formatCurrency(p.currentPrice)}</td>
-                    <td className="py-1.5 text-right text-ink-muted">{formatCurrency(p.marketValue)}</td>
-                    <td className={`py-1.5 text-right ${pnlColor}`}>{formatSignedCurrency(p.unrealizedPnl)}</td>
+                    <td className="py-1.5 text-right text-ink-muted">{formatDualCurrency(p.avgCost, displayCurrency, rates)}</td>
+                    <td className="py-1.5 text-right">{formatDualCurrency(p.currentPrice, displayCurrency, rates)}</td>
+                    <td className="py-1.5 text-right text-ink-muted">
+                      {formatDualCurrency(p.marketValue, displayCurrency, rates)}
+                    </td>
+                    <td className={`py-1.5 text-right ${pnlColor}`}>
+                      {formatSignedDualCurrency(p.unrealizedPnl, displayCurrency, rates)}
+                    </td>
                     <td className={`py-1.5 text-right ${pnlColor}`}>{formatSignedPercent(p.unrealizedPnlPercent)}</td>
                   </tr>
                 )

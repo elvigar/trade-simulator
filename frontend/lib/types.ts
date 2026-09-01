@@ -108,3 +108,23 @@ export interface ChatMessage {
   pending?: boolean
   isError?: boolean
 }
+
+export type CurrencyCode = string
+
+/** One entry from GET /api/fx/currencies' `currencies` array. */
+export interface CurrencyMeta {
+  code: string
+  name: string
+}
+
+/** GET /api/fx/rates response — `rates` are USD-based (1 USD = rates[code] of that currency). */
+export interface FxRates {
+  rates: Record<string, number>
+  as_of: number
+  source: 'live' | 'fallback'
+}
+
+/** GET and PUT /api/fx/preference response. */
+export interface DisplayCurrencyPreference {
+  display_currency: string
+}

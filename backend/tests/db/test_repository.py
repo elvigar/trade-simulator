@@ -24,6 +24,20 @@ def test_get_cash_balance_raises_for_unknown_user(conn):
         repo.get_cash_balance(conn, user_id="nobody")
 
 
+def test_get_display_currency_returns_seeded_default(conn):
+    assert repo.get_display_currency(conn) == "USD"
+
+
+def test_set_display_currency_round_trip(conn):
+    repo.set_display_currency(conn, "EUR")
+    assert repo.get_display_currency(conn) == "EUR"
+
+
+def test_get_display_currency_raises_for_unknown_user(conn):
+    with pytest.raises(LookupError):
+        repo.get_display_currency(conn, user_id="nobody")
+
+
 # --- positions -----------------------------------------------------------
 
 

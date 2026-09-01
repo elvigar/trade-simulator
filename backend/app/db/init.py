@@ -32,8 +32,27 @@ def init_db(db_path: str | None = None) -> None:
         for statement in INDEX_STATEMENTS:
             conn.execute(statement)
         conn.commit()
+        _run_column_migrations(conn)
+        conn.commit()
         _seed_if_empty(conn)
         conn.commit()
+
+
+def _add_column_if_missing(conn: sqlite3.Connection, table: str, column: str, ddl: str) -> None:
+    existing = {row["name"] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+    if column not in existing:
+        conn.execute(ddl)
+
+
+def _run_column_migrations(conn: sqlite3.Connection) -> None:
+    """Add columns to already-existing tables (CREATE TABLE IF NOT EXISTS
+    above only covers fresh DBs). Idempotent — safe on every startup."""
+    _add_column_if_missing(
+        conn,
+        "users_profile",
+        "display_currency",
+        "ALTER TABLE users_profile ADD COLUMN display_currency TEXT NOT NULL DEFAULT 'USD'",
+    )
 
 
 def _seed_if_empty(conn: sqlite3.Connection) -> None:

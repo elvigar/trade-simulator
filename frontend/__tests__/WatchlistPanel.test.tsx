@@ -35,8 +35,8 @@ describe('WatchlistPanel', () => {
     renderPanel()
     expect(screen.getByText('AAPL')).toBeInTheDocument()
     expect(screen.getByText('MSFT')).toBeInTheDocument()
-    expect(screen.getByText('190.50')).toBeInTheDocument()
-    expect(screen.getByText('420.00')).toBeInTheDocument()
+    expect(screen.getByText('$190.50')).toBeInTheDocument()
+    expect(screen.getByText('$420.00')).toBeInTheDocument()
   })
 
   it('selects a ticker when its row is clicked', async () => {

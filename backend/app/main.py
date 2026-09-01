@@ -14,8 +14,9 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import db, state
-from app.api import health, portfolio, watchlist
+from app.api import fx, health, portfolio, watchlist
 from app.errors import DomainError
+from app.fx import FxRefresher
 from app.market import create_market_data_source, create_stream_router
 from app.portfolio.service import compute_total_value
 
@@ -78,7 +79,17 @@ async def lifespan(app: FastAPI):
         watchlist_tickers = {row["ticker"] for row in db.list_watchlist(conn)}
         position_tickers = {row["ticker"] for row in db.list_positions(conn)}
     initial_tickers = sorted(watchlist_tickers | position_tickers)
-    await state.market_source.start(initial_tickers)
+
+    state.fx_refresher = FxRefresher(state.fx_cache)
+
+    # Independent network-bound startups — run concurrently so a slow
+    # Frankfurter response doesn't add its own latency on top of the market
+    # data source's startup (the FX cache is already fallback-seeded, so
+    # nothing else during startup depends on this poll completing first).
+    await asyncio.gather(
+        state.market_source.start(initial_tickers),
+        state.fx_refresher.start(),
+    )
 
     _snapshot_task = asyncio.create_task(_snapshot_loop())
 
@@ -92,6 +103,8 @@ async def lifespan(app: FastAPI):
             except asyncio.CancelledError:
                 pass
             _snapshot_task = None
+        if state.fx_refresher is not None:
+            await state.fx_refresher.stop()
         if state.market_source is not None:
             await state.market_source.stop()
 
@@ -122,6 +135,7 @@ async def validation_error_handler(
 app.include_router(health.router)
 app.include_router(portfolio.router)
 app.include_router(watchlist.router)
+app.include_router(fx.router)
 app.include_router(create_stream_router(state.price_cache))
 
 try:

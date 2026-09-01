@@ -5,7 +5,7 @@ import PanelHeader from './PanelHeader'
 import type { PricePoint } from '@/hooks/usePriceStream'
 import { computeSessionChangePercent } from '@/lib/portfolio'
 import type { PriceUpdate } from '@/lib/types'
-import { formatClockTime, formatCurrency, formatSignedPercent } from '@/lib/format'
+import { formatClockTime, formatDualCurrency, formatSignedPercent } from '@/lib/format'
 
 function Stat({ label, value, tone = 'neutral' }: { label: string; value: string; tone?: 'neutral' | 'up' | 'down' }) {
   const toneClass = tone === 'up' ? 'text-up' : tone === 'down' ? 'text-down' : 'text-ink'
@@ -21,10 +21,14 @@ export default function MainChart({
   ticker,
   price,
   history,
+  displayCurrency = 'USD',
+  rates = null,
 }: {
   ticker: string | null
   price: PriceUpdate | undefined
   history: PricePoint[]
+  displayCurrency?: string
+  rates?: Record<string, number> | null
 }) {
   const sessionChangePercent = computeSessionChangePercent(history, undefined)
   const changeColor = sessionChangePercent > 0 ? 'text-up' : sessionChangePercent < 0 ? 'text-down' : 'text-ink-muted'
@@ -43,7 +47,9 @@ export default function MainChart({
         right={
           ticker && price ? (
             <div className="flex items-baseline gap-2 font-mono tabular">
-              <span className="text-lg font-semibold text-ink">{price.price.toFixed(2)}</span>
+              <span className="text-lg font-semibold text-ink">
+                {formatDualCurrency(price.price, displayCurrency, rates)}
+              </span>
               <span className={`text-xs ${changeColor}`} title="Change since page load">
                 {formatSignedPercent(sessionChangePercent)}
               </span>
@@ -54,7 +60,7 @@ export default function MainChart({
 
       {ticker && (
         <div className="mb-2 grid grid-cols-5 gap-0 rounded-sm border border-line bg-base/75 px-3 py-2">
-          <Stat label="Last" value={latestPrice ? formatCurrency(latestPrice) : '--'} />
+          <Stat label="Last" value={latestPrice ? formatDualCurrency(latestPrice, displayCurrency, rates) : '--'} />
           <Stat label="Tick" value={price ? formatSignedPercent(price.change_percent) : '--'} tone={tickTone} />
           <Stat label="Session" value={formatSignedPercent(sessionChangePercent)} tone={sessionChangePercent > 0 ? 'up' : sessionChangePercent < 0 ? 'down' : 'neutral'} />
           <Stat label="Range" value={sessionHigh && sessionLow ? `${sessionLow.toFixed(2)}-${sessionHigh.toFixed(2)}` : '--'} />

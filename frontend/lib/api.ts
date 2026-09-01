@@ -1,6 +1,9 @@
 import type {
   ApiErrorBody,
   ChatResponse,
+  CurrencyMeta,
+  DisplayCurrencyPreference,
+  FxRates,
   Portfolio,
   PortfolioSnapshot,
   TradeRequest,
@@ -55,4 +58,12 @@ export const api = {
     request<void>(`/watchlist/${encodeURIComponent(ticker)}`, { method: 'DELETE' }),
   sendChatMessage: (message: string) =>
     request<ChatResponse>('/chat', { method: 'POST', body: JSON.stringify({ message }) }),
+  getFxCurrencies: () => request<{ currencies: CurrencyMeta[]; default: string }>('/fx/currencies'),
+  getFxRates: () => request<FxRates>('/fx/rates'),
+  getDisplayCurrency: () => request<DisplayCurrencyPreference>('/fx/preference'),
+  setDisplayCurrency: (code: string) =>
+    request<DisplayCurrencyPreference>('/fx/preference', {
+      method: 'PUT',
+      body: JSON.stringify({ display_currency: code }),
+    }),
 }

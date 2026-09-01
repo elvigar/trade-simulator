@@ -9,6 +9,7 @@ time — which is None before startup runs.
 
 from __future__ import annotations
 
+from app.fx import FxRateCache, FxRefresher
 from app.market import MarketDataSource, PriceCache
 
 price_cache: PriceCache = PriceCache()
@@ -17,3 +18,8 @@ market_source: MarketDataSource | None = None
 # Per-ticker first-price-observed-this-process, for the watchlist's "daily
 # change %" proxy metric. See DECISIONS.md -> "Price metrics semantics".
 session_open_prices: dict[str, float] = {}
+
+# FX rate cache: seeded from fallback rates at import time (never empty),
+# refreshed periodically by fx_refresher once app.main's lifespan starts it.
+fx_cache: FxRateCache = FxRateCache()
+fx_refresher: FxRefresher | None = None

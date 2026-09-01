@@ -2,7 +2,7 @@ import Sparkline from './Sparkline'
 import { usePriceFlash } from '@/hooks/usePriceFlash'
 import type { PricePoint } from '@/hooks/usePriceStream'
 import type { PriceUpdate } from '@/lib/types'
-import { formatSignedPercent } from '@/lib/format'
+import { formatCurrency, formatSignedPercent } from '@/lib/format'
 
 const FLASH_CLASS: Record<'up' | 'down' | 'flat', string> = {
   up: 'animate-flash-up',
@@ -16,6 +16,8 @@ export default function WatchlistRow({
   history,
   sessionChangePercent,
   selected,
+  displayCurrency = 'USD',
+  rates = null,
   onSelect,
   onRemove,
 }: {
@@ -24,12 +26,21 @@ export default function WatchlistRow({
   history: PricePoint[]
   sessionChangePercent: number
   selected: boolean
+  displayCurrency?: string
+  rates?: Record<string, number> | null
   onSelect: () => void
   onRemove: () => void
 }) {
   const flash = usePriceFlash(price?.price)
   const changeColor =
     sessionChangePercent > 0 ? 'text-up' : sessionChangePercent < 0 ? 'text-down' : 'text-ink-muted'
+  const usdPrice = price ? formatCurrency(price.price, 'USD') : null
+  const rate = displayCurrency !== 'USD' ? rates?.[displayCurrency] : undefined
+  // The watchlist column is fixed-width — show the converted value alone
+  // (with USD in a tooltip) rather than the full dual "$X · €Y" string, which
+  // doesn't fit next to the sparkline.
+  const priceText = price ? (rate ? formatCurrency(price.price * rate, displayCurrency) : usdPrice!) : '—'
+  const priceTitle = rate ? (usdPrice ?? undefined) : undefined
 
   return (
     <div
@@ -48,8 +59,8 @@ export default function WatchlistRow({
         <span className="font-mono text-sm font-semibold text-ink">{ticker}</span>
       </div>
 
-      <div className={`font-mono tabular text-sm text-right px-1 rounded-sm ${FLASH_CLASS[flash]}`}>
-        {price ? price.price.toFixed(2) : '—'}
+      <div className={`font-mono tabular text-sm text-right px-1 rounded-sm ${FLASH_CLASS[flash]}`} title={priceTitle}>
+        {priceText}
       </div>
 
       <div className={`font-mono tabular text-xs text-right w-14 ${changeColor}`} title="Change since page load">

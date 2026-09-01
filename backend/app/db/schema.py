@@ -8,7 +8,8 @@ SCHEMA_STATEMENTS: tuple[str, ...] = (
     CREATE TABLE IF NOT EXISTS users_profile (
         id TEXT PRIMARY KEY DEFAULT 'default',
         cash_balance REAL NOT NULL DEFAULT 10000.0,
-        created_at TEXT NOT NULL
+        created_at TEXT NOT NULL,
+        display_currency TEXT NOT NULL DEFAULT 'USD'
     )
     """,
     """

@@ -13,6 +13,7 @@ Public API:
 
     Row-level helpers (each takes an open connection as its first arg):
         get_cash_balance, update_cash_balance
+        get_display_currency, set_display_currency
         get_position, list_positions, upsert_position
         insert_trade, list_trades
         insert_snapshot, list_snapshots
@@ -26,6 +27,7 @@ from .locks import TRADE_LOCK
 from .repository import (
     add_watchlist_ticker,
     get_cash_balance,
+    get_display_currency,
     get_position,
     insert_chat_message,
     insert_snapshot,
@@ -37,6 +39,7 @@ from .repository import (
     list_trades,
     list_watchlist,
     remove_watchlist_ticker,
+    set_display_currency,
     update_cash_balance,
     upsert_position,
 )
@@ -51,6 +54,8 @@ __all__ = [
     "DEFAULT_CASH_BALANCE",
     "get_cash_balance",
     "update_cash_balance",
+    "get_display_currency",
+    "set_display_currency",
     "get_position",
     "list_positions",
     "upsert_position",

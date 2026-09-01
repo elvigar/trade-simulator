@@ -14,6 +14,7 @@ import { usePortfolio } from '@/hooks/usePortfolio'
 import { useWatchlist } from '@/hooks/useWatchlist'
 import { usePortfolioHistory } from '@/hooks/usePortfolioHistory'
 import { useChat } from '@/hooks/useChat'
+import { useCurrency } from '@/hooks/useCurrency'
 import { computePositionMetrics, computeTotalValue } from '@/lib/portfolio'
 
 export default function TradingTerminal() {
@@ -21,6 +22,7 @@ export default function TradingTerminal() {
   const { portfolio, refresh: refreshPortfolio } = usePortfolio()
   const { watchlist, addTicker, removeTicker, refresh: refreshWatchlist } = useWatchlist()
   const { history: portfolioHistory, refresh: refreshHistory } = usePortfolioHistory()
+  const { currencies, displayCurrency, setDisplayCurrency, rates } = useCurrency()
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null)
   const [chatOpen, setChatOpen] = useState(true)
 
@@ -64,6 +66,10 @@ export default function TradingTerminal() {
         investedValue={investedValue}
         totalUnrealizedPnl={portfolio?.total_unrealized_pnl ?? 0}
         status={status}
+        displayCurrency={displayCurrency}
+        currencies={currencies}
+        rates={rates}
+        onCurrencyChange={setDisplayCurrency}
       />
 
       <div className="flex flex-1 gap-2 overflow-hidden p-2.5">
@@ -73,6 +79,8 @@ export default function TradingTerminal() {
             prices={prices}
             getHistory={getHistory}
             selectedTicker={effectiveSelected}
+            displayCurrency={displayCurrency}
+            rates={rates}
             onSelect={setSelectedTicker}
             onAdd={addTicker}
             onRemove={handleRemove}
@@ -85,16 +93,18 @@ export default function TradingTerminal() {
               ticker={effectiveSelected}
               price={effectiveSelected ? prices[effectiveSelected] : undefined}
               history={effectiveSelected ? getHistory(effectiveSelected) : []}
+              displayCurrency={displayCurrency}
+              rates={rates}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-2 h-64 shrink-0">
-            <PortfolioHeatmap positions={positionMetrics} />
-            <PnLChart history={portfolioHistory} />
+            <PortfolioHeatmap positions={positionMetrics} displayCurrency={displayCurrency} rates={rates} />
+            <PnLChart history={portfolioHistory} displayCurrency={displayCurrency} rates={rates} />
           </div>
 
           <div className="min-h-[220px] flex-1">
-            <PositionsTable positions={positionMetrics} />
+            <PositionsTable positions={positionMetrics} displayCurrency={displayCurrency} rates={rates} />
           </div>
 
           <TradeBar
@@ -102,6 +112,8 @@ export default function TradingTerminal() {
             currentPrice={effectiveSelected ? prices[effectiveSelected]?.price : undefined}
             cashBalance={portfolio?.cash_balance ?? 0}
             heldQuantity={selectedPosition?.quantity ?? 0}
+            displayCurrency={displayCurrency}
+            rates={rates}
             onTraded={handleTraded}
           />
         </div>

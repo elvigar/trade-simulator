@@ -21,4 +21,12 @@ describe('PositionsTable', () => {
     expect(screen.getByText('+$100.00')).toBeInTheDocument()
     expect(screen.getByText('-$40.00')).toBeInTheDocument()
   })
+
+  it('renders dual-currency figures when a non-USD display currency is selected', () => {
+    const metrics = [computePositionMetrics({ ticker: 'AAPL', quantity: 10, avg_cost: 100 }, 110)]
+    render(<PositionsTable positions={metrics} displayCurrency="EUR" rates={{ EUR: 0.92 }} />)
+
+    expect(screen.getAllByText('$1,100.00 · €1,012.00').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('+$100.00 · €92.00').length).toBeGreaterThan(0)
+  })
 })

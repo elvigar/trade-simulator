@@ -12,6 +12,8 @@ export default function WatchlistPanel({
   prices,
   getHistory,
   selectedTicker,
+  displayCurrency = 'USD',
+  rates = null,
   onSelect,
   onAdd,
   onRemove,
@@ -20,6 +22,8 @@ export default function WatchlistPanel({
   prices: Record<string, PriceUpdate>
   getHistory: (ticker: string) => PricePoint[]
   selectedTicker: string | null
+  displayCurrency?: string
+  rates?: Record<string, number> | null
   onSelect: (ticker: string) => void
   onAdd: (ticker: string) => Promise<{ ok: boolean; message?: string } | undefined>
   onRemove: (ticker: string) => void
@@ -67,6 +71,8 @@ export default function WatchlistPanel({
               history={history}
               sessionChangePercent={computeSessionChangePercent(history, entry.daily_change_percent)}
               selected={selectedTicker === entry.ticker}
+              displayCurrency={displayCurrency}
+              rates={rates}
               onSelect={() => onSelect(entry.ticker)}
               onRemove={() => onRemove(entry.ticker)}
             />
