@@ -29,11 +29,11 @@ export default function PositionsTable({
           ) : null
         }
       />
-      <div className="flex-1 overflow-auto">
+      <div className="min-w-0 flex-1 overflow-x-auto overflow-y-auto">
         {positions.length === 0 ? (
           <p className="px-1 py-4 text-sm text-ink-faint">No open positions. Place a trade to get started.</p>
         ) : (
-          <table className="w-full text-left text-xs">
+          <table className="min-w-[680px] w-full text-left text-xs">
             <thead>
               <tr className="text-[10px] uppercase tracking-widest text-ink-faint">
                 <th className="py-1 font-medium">Ticker</th>

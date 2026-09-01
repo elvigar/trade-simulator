@@ -16,9 +16,9 @@ export default function PanelHeader({
   right?: React.ReactNode
 }) {
   return (
-    <div className={`mb-2 flex items-center justify-between border-l-2 border-b border-b-line/70 ${ACCENT_BORDER[accent]} pb-1.5 pl-2 pr-1 pt-0.5`}>
-      <h2 className="text-xs font-semibold uppercase tracking-widest text-ink-muted">{title}</h2>
-      {right}
+    <div className={`mb-2 flex min-w-0 flex-wrap items-start justify-between gap-x-2 gap-y-1 border-l-2 border-b border-b-line/70 ${ACCENT_BORDER[accent]} pb-1.5 pl-2 pr-1 pt-0.5`}>
+      <h2 className="min-w-0 text-xs font-semibold uppercase tracking-widest text-ink-muted">{title}</h2>
+      {right && <div className="min-w-0 max-w-full overflow-hidden">{right}</div>}
     </div>
   )
 }

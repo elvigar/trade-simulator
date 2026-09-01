@@ -72,8 +72,8 @@ export default function TradingTerminal() {
         onCurrencyChange={setDisplayCurrency}
       />
 
-      <div className="flex flex-1 gap-2 overflow-hidden p-2.5">
-        <div className="w-72 shrink-0">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-y-auto p-2.5 md:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[18rem_minmax(0,1fr)_20rem] xl:overflow-hidden">
+        <div className="min-w-0 md:w-72 md:shrink-0">
           <WatchlistPanel
             watchlist={watchlist}
             prices={prices}
@@ -87,7 +87,7 @@ export default function TradingTerminal() {
           />
         </div>
 
-        <div className="flex flex-1 flex-col gap-2 overflow-y-auto">
+        <div className="min-w-0 flex flex-col gap-2 xl:overflow-y-auto">
           <div className="h-72 shrink-0">
             <MainChart
               ticker={effectiveSelected}
@@ -98,7 +98,7 @@ export default function TradingTerminal() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-2 h-64 shrink-0">
+          <div className="grid h-auto shrink-0 grid-cols-1 gap-2 sm:h-64 sm:grid-cols-2">
             <PortfolioHeatmap positions={positionMetrics} displayCurrency={displayCurrency} rates={rates} />
             <PnLChart history={portfolioHistory} displayCurrency={displayCurrency} rates={rates} />
           </div>
@@ -118,7 +118,7 @@ export default function TradingTerminal() {
           />
         </div>
 
-        <div className={chatOpen ? 'w-80 shrink-0' : 'shrink-0'}>
+        <div className="min-w-0 md:col-span-2 xl:col-span-1 xl:w-80 xl:shrink-0">
           <ChatPanel
             open={chatOpen}
             onToggle={() => setChatOpen((v) => !v)}

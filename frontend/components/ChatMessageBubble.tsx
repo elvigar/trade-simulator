@@ -15,7 +15,7 @@ function ActionResultBadge({ result }: { result: ActionResult }) {
         ok ? 'border-up/40 bg-up/10 text-up' : 'border-down/40 bg-down/10 text-down'
       }`}
     >
-      <span>{ok ? 'OK' : 'ERR'}</span>
+      <span aria-label={ok ? 'Action succeeded' : 'Action failed'}>{ok ? '✓' : '✕'}</span>
       <span className="capitalize">{label}</span>
       {!ok && result.error_code && <span className="text-ink-faint">({result.error_code})</span>}
     </div>

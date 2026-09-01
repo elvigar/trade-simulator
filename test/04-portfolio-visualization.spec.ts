@@ -18,7 +18,7 @@ test.describe('Portfolio visualization', () => {
     await expect(page.getByText('Snapshots will appear as trades happen and time passes.')).toHaveCount(0)
 
     // Recharts <Line> renders its curve as an SVG path with this class.
-    const line = page.locator('svg path.recharts-line-curve')
+    const line = page.getByTestId('pnl-chart').locator('svg path.recharts-line-curve')
     await expect(line).toBeVisible()
   })
 
@@ -26,7 +26,7 @@ test.describe('Portfolio visualization', () => {
     await page.goto('/')
     const row = page.locator('table tbody tr').filter({ has: page.locator('td:text-is("AAPL")') })
     await expect(row).toBeVisible()
-    // Ticker, qty, avg cost, price, P&L $, P&L % — six cells.
-    await expect(row.locator('td')).toHaveCount(6)
+    // Ticker, qty, avg cost, price, market value, P&L $, P&L % — seven cells.
+    await expect(row.locator('td')).toHaveCount(7)
   })
 })

@@ -54,7 +54,7 @@ export default function Header({
   const cashAllocation = totalValue > 0 ? (cashBalance / totalValue) * 100 : 0
 
   return (
-    <header className="flex items-center justify-between border-b border-line bg-base-panel/95 px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.22)]">
+    <header className="flex items-center justify-between gap-2 border-b border-line bg-base-panel/95 px-3 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.22)] sm:px-4">
       <div className="flex min-w-0 items-center gap-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-sm border border-accent/50 bg-accent/10 font-mono text-sm font-bold text-accent">
           FA
@@ -70,7 +70,7 @@ export default function Header({
         </div>
       </div>
 
-      <div className="flex min-w-0 items-center gap-4">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-4">
         <div className="hidden items-center gap-0 rounded-sm border border-line bg-base/70 px-3 py-1.5 lg:flex">
           <Metric label="Total Value" value={formatDualCurrency(totalValue, displayCurrency, rates)} tone="accent" />
           <Metric
@@ -82,10 +82,10 @@ export default function Header({
           <Metric label="Cash" value={formatDualCurrency(cashBalance, displayCurrency, rates)} tone="blue" />
           <Metric label="Cash %" value={formatSignedPercent(cashAllocation).replace('+', '')} tone="neutral" />
         </div>
-        <div className="text-right lg:hidden">
+        <div className="min-w-0 text-right lg:hidden">
           <div className="text-[10px] uppercase tracking-widest text-ink-faint">Total Value</div>
           <div className="font-mono tabular text-base font-semibold text-accent">
-            {formatDualCurrency(totalValue, displayCurrency, rates)}
+            <span className="block truncate">{formatDualCurrency(totalValue, displayCurrency, rates)}</span>
           </div>
         </div>
         <CurrencySelect currencies={currencies} value={displayCurrency} onChange={onCurrencyChange} />

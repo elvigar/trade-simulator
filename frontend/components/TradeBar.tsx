@@ -79,7 +79,7 @@ export default function TradeBar({
           ) : null
         }
       />
-      <div className="grid grid-cols-[auto_auto_1fr_auto_auto] items-end gap-2">
+      <div className="grid grid-cols-1 items-end gap-2 sm:grid-cols-2 xl:grid-cols-[auto_auto_minmax(0,1fr)_auto_auto]">
         <div className="flex min-w-0 flex-col gap-1">
           <label htmlFor="trade-ticker" className="text-[10px] uppercase tracking-widest text-ink-faint">
             Ticker
@@ -89,7 +89,7 @@ export default function TradeBar({
             value={ticker}
             onChange={(e) => setTicker(e.target.value)}
             placeholder={defaultTicker ?? 'AAPL'}
-            className="w-24 rounded-sm border border-line bg-base px-2 py-1.5 font-mono text-sm uppercase text-ink placeholder:text-ink-faint focus:border-brand-blue focus:outline-none"
+            className="w-full rounded-sm border border-line bg-base px-2 py-1.5 font-mono text-sm uppercase text-ink placeholder:text-ink-faint focus:border-brand-blue focus:outline-none xl:w-24"
           />
         </div>
         <div className="flex min-w-0 flex-col gap-1">
@@ -104,10 +104,10 @@ export default function TradeBar({
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
             placeholder="10"
-            className="w-24 rounded-sm border border-line bg-base px-2 py-1.5 font-mono text-sm text-ink placeholder:text-ink-faint focus:border-brand-blue focus:outline-none"
+            className="w-full rounded-sm border border-line bg-base px-2 py-1.5 font-mono text-sm text-ink placeholder:text-ink-faint focus:border-brand-blue focus:outline-none xl:w-24"
           />
         </div>
-        <div className="grid min-w-[340px] grid-cols-4 gap-1 rounded-sm border border-line bg-base/80 px-2 py-1.5 text-[11px]">
+        <div className="col-span-1 grid min-w-0 grid-cols-2 gap-1 rounded-sm border border-line bg-base/80 px-2 py-1.5 text-[11px] sm:col-span-2 sm:grid-cols-4 xl:col-span-1">
           <div>
             <div className="uppercase tracking-widest text-ink-faint">Notional</div>
             <div className="font-mono tabular text-ink">
@@ -137,7 +137,7 @@ export default function TradeBar({
           type="button"
           onClick={() => submit('buy')}
           disabled={submitting !== null}
-          className="rounded-sm bg-up px-4 py-1.5 text-sm font-semibold text-base disabled:opacity-50"
+          className="w-full rounded-sm bg-up px-4 py-1.5 text-sm font-semibold text-base disabled:opacity-50 xl:w-auto"
         >
           <span aria-hidden="true" className="mr-1 rounded-[1px] bg-base/25 px-1 font-mono text-[10px]">
             B
@@ -148,7 +148,7 @@ export default function TradeBar({
           type="button"
           onClick={() => submit('sell')}
           disabled={submitting !== null}
-          className="rounded-sm bg-down px-4 py-1.5 text-sm font-semibold text-base disabled:opacity-50"
+          className="w-full rounded-sm bg-down px-4 py-1.5 text-sm font-semibold text-base disabled:opacity-50 xl:w-auto"
         >
           <span aria-hidden="true" className="mr-1 rounded-[1px] bg-base/25 px-1 font-mono text-[10px]">
             S
