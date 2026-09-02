@@ -4,9 +4,8 @@ import { useCallback, useMemo, useState } from 'react'
 import Header from './Header'
 import WatchlistPanel from './WatchlistPanel'
 import MainChart from './MainChart'
-import PortfolioHeatmap from './PortfolioHeatmap'
+import PortfolioPanel from './PortfolioPanel'
 import PnLChart from './PnLChart'
-import PositionsTable from './PositionsTable'
 import TradeBar from './TradeBar'
 import ChatPanel from './ChatPanel'
 import { usePriceStream } from '@/hooks/usePriceStream'
@@ -88,7 +87,7 @@ export default function TradingTerminal() {
         </div>
 
         <div className="min-w-0 flex flex-col gap-2 xl:overflow-y-auto">
-          <div className="h-72 shrink-0">
+          <div className="min-h-[18rem] shrink-0">
             <MainChart
               ticker={effectiveSelected}
               price={effectiveSelected ? prices[effectiveSelected] : undefined}
@@ -96,15 +95,6 @@ export default function TradingTerminal() {
               displayCurrency={displayCurrency}
               rates={rates}
             />
-          </div>
-
-          <div className="grid h-auto shrink-0 grid-cols-1 gap-2 sm:h-64 sm:grid-cols-2">
-            <PortfolioHeatmap positions={positionMetrics} displayCurrency={displayCurrency} rates={rates} />
-            <PnLChart history={portfolioHistory} displayCurrency={displayCurrency} rates={rates} />
-          </div>
-
-          <div className="min-h-[220px] flex-1">
-            <PositionsTable positions={positionMetrics} displayCurrency={displayCurrency} rates={rates} />
           </div>
 
           <TradeBar
@@ -116,6 +106,11 @@ export default function TradingTerminal() {
             rates={rates}
             onTraded={handleTraded}
           />
+
+          <div className="grid min-h-[18rem] flex-1 grid-cols-1 gap-2 lg:grid-cols-[2fr_1fr]">
+            <PortfolioPanel positions={positionMetrics} displayCurrency={displayCurrency} rates={rates} />
+            <PnLChart history={portfolioHistory} displayCurrency={displayCurrency} rates={rates} />
+          </div>
         </div>
 
         <div className="min-w-0 md:col-span-2 xl:col-span-1 xl:w-80 xl:shrink-0">
