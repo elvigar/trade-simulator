@@ -127,6 +127,20 @@ class TestMassiveDataSource:
         await source.add_ticker("  AAPL  ")
         assert "AAPL" in source.get_tickers()
 
+    async def test_add_ticker_polls_immediately_when_started(self):
+        """Test that adding a ticker updates the cache without waiting for the poll interval."""
+        cache = PriceCache()
+        source = MassiveDataSource(api_key="test-key", price_cache=cache, poll_interval=60.0)
+        source._client = MagicMock()
+
+        mock_snapshots = [_make_snapshot("AAPL", 190.50, 1707580800000)]
+
+        with patch.object(source, "_fetch_snapshots", return_value=mock_snapshots) as mock_fetch:
+            await source.add_ticker("AAPL")
+
+        mock_fetch.assert_called_once_with(["AAPL"])
+        assert cache.get_price("AAPL") == 190.50
+
     async def test_remove_ticker(self):
         """Test removing a ticker."""
         cache = PriceCache()

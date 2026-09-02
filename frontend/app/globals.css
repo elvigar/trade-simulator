@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  border-color: theme('colors.line');
+}
+
+body {
+  background:
+    linear-gradient(180deg, rgba(32, 157, 215, 0.08), transparent 280px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    #0d1117;
+  background-size: auto, 48px 48px, 48px 48px, auto;
+}
+
+::selection {
+  background: rgba(236, 173, 10, 0.28);
+  color: #ffffff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0d1117;
+}
+::-webkit-scrollbar-thumb {
+  background: #242b38;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #323b4a;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Respect reduced-motion preferences for the price-flash / pulse animations. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

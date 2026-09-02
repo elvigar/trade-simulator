@@ -1,0 +1,63 @@
+# E2E test harness skeleton (devops-engineer). Fills in per PLAN.md section 12:
+# app container + a Playwright container, kept out of the production image.
+#
+# Integration-tester: fill in the `playwright` service's command and mount
+# your spec/config files (this file assumes they live alongside this one in
+# test/, e.g. test/*.spec.ts, test/playwright.config.ts).
+#
+# Isolated DB: the app container intentionally has NO bind mount to the
+# repo's db/ directory. FINALLY_DB_PATH is left unset, so the backend falls
+# back to its own default path inside the container's ephemeral filesystem —
+# each `docker compose up` gets a fresh, empty SQLite DB, and nothing here
+# reads or writes the developer's local db/finally.db.
+#
+# Usage (from repo root):
+#   docker compose -f test/docker-compose.test.yml up --build --abort-on-container-exit
+#   docker compose -f test/docker-compose.test.yml down -v
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    environment:
+      LLM_MOCK: "true"
+      MASSIVE_API_KEY: ""
+    # No host port publish: the playwright service reaches this container via
+    # the compose network at http://app:8000 (BASE_URL below), so publishing
+    # to the host isn't needed — and this machine already has an unrelated
+    # container permanently bound to host port 8000 (integration-tester found
+    # this: `docker ps` showed a container named "pm-app" listening on
+    # 0.0.0.0:8000), which would make `up` fail with "port is already
+    # allocated" if we tried to publish here.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/health').status == 200 else 1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 45s
+
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.48.0-jammy
+    working_dir: /work
+    volumes:
+      - ..:/work
+    environment:
+      BASE_URL: "http://app:8000"
+    depends_on:
+      app:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - >
+        cd test &&
+        npm ci &&
+        npx playwright test
+        01-fresh-start.spec.ts
+        02-watchlist.spec.ts
+        03-trading.spec.ts
+        04-portfolio-visualization.spec.ts
+        05-chat.spec.ts
+        06-sse-resilience.spec.ts
+        --config=playwright.config.ts

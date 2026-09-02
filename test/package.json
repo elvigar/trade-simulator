@@ -1,0 +1,11 @@
+{
+  "name": "finally-e2e",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test 01-fresh-start.spec.ts 02-watchlist.spec.ts 03-trading.spec.ts 04-portfolio-visualization.spec.ts 05-chat.spec.ts 06-sse-resilience.spec.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.48.0"
+  }
+}
